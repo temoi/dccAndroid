@@ -11,6 +11,9 @@ void onMegaPointAddrChange(int dccAdr, boolean value)
 {
     Serial.print("\t");
     Serial.print("DCC# " + String(dccAdr) + " ");
+    
+
+    
     if (value)
     {
         Serial.print("green 1");
@@ -19,16 +22,19 @@ void onMegaPointAddrChange(int dccAdr, boolean value)
     {
         Serial.print("red 0");
     }
+
+    signal.dccValueChange(dccAdr,value);
+
     switch (dccAdr)
     {
-    case 5:
+    case 1:
         if (value) {
             signal.dccValueChange(101,true); //Green
         } else {
             signal.dccValueChange(101,false); //Rødt
         }
         break;
-    case 6:
+    case 2:
        if (value) {
            signal.dccValueChange(102,true); //Gult
        } else {
@@ -38,6 +44,8 @@ void onMegaPointAddrChange(int dccAdr, boolean value)
     default:
         break;
     }
+
+    
 }
 
 void setup() {  

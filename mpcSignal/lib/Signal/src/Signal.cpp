@@ -38,6 +38,9 @@ Signal::Signal(int dccAdr)
   pinMode(sign1_red,OUTPUT);
   pinMode(sign1_green,OUTPUT);
   pinMode(sign1_yellow,OUTPUT);
+  setSignalStatus(0,sign1_red);
+
+  return;
 
   _signItems[1].signstatus=0;
   _signItems[1].pin_red=sign2_red;
@@ -47,6 +50,7 @@ Signal::Signal(int dccAdr)
   pinMode(sign2_red,OUTPUT);
   pinMode(sign2_green,OUTPUT);
   pinMode(sign2_yellow,OUTPUT);
+  setSignalStatus(1,sign1_red);
 
   _signItems[2].signstatus=0;
   _signItems[2].pin_red=sign3_red;
@@ -56,17 +60,23 @@ Signal::Signal(int dccAdr)
   pinMode(sign3_red,OUTPUT);
   pinMode(sign3_green,OUTPUT);
   pinMode(sign3_yellow,OUTPUT);
+  setSignalStatus(2,sign1_red);
 
   _signItems[3].signstatus=0;
   _signItems[3].pin_red=sign4_red;
   _signItems[3].pin_green=sign4_green;
   _signItems[3].pin_yellow=sign4_yellow;
   _signItems[3].dcc = dccAdr + 6;
+  pinMode(sign4_red,OUTPUT);
+  pinMode(sign4_green,OUTPUT);
+  pinMode(sign4_yellow,OUTPUT);
+  setSignalStatus(3,sign1_red);
 }
 
 void Signal::dccValueChange(int dccAdr, boolean value)
 {
   int no = getSignalIndex(dccAdr);
+  if (no!=0) return;
   if (no > -1)
   {
     if (_signItems[no].dcc == dccAdr)
@@ -77,6 +87,7 @@ void Signal::dccValueChange(int dccAdr, boolean value)
     {
       _signItems[no].value[1] = value;
     }
+    
     if (_signItems[no].value[0])
     {
       if (_signItems[no].value[1])
@@ -90,7 +101,7 @@ void Signal::dccValueChange(int dccAdr, boolean value)
     }
     else
     {
-      _signItems[no].signstatus = sign_green;
+      _signItems[no].signstatus = sign_red;
     }
     updatePins(no);
   }
@@ -98,39 +109,45 @@ void Signal::dccValueChange(int dccAdr, boolean value)
 
 void Signal::test()
 {
-    Serial.println("Test");
+  Serial.println("Test");
 }
 int Signal::getSignalIndex(int dccAdr)
 {
-  if ((dccAdr<_dccAdr) || (dccAdr>(_dccAdr+15))) return -1;
-  return ((dccAdr-_dccAdr) / 2);
+  if ((dccAdr < _dccAdr) || (dccAdr > (_dccAdr + 11)))
+    return -1;
+  return ((dccAdr - _dccAdr) / 2);
 }
-void Signal::updatePins(int signalIndex) {
+void Signal::updatePins(int signalIndex)
+{
+  Serial.print("\t");
   switch (_signItems[signalIndex].signstatus)
   {
   case sign_green:
-    digitalWrite(_signItems[signalIndex].pin_green,HIGH);
-    digitalWrite(_signItems[signalIndex].pin_red,LOW);
-    digitalWrite(_signItems[signalIndex].pin_yellow,LOW);
+    digitalWrite(_signItems[signalIndex].pin_green, HIGH);
+    digitalWrite(_signItems[signalIndex].pin_red, LOW);
+    digitalWrite(_signItems[signalIndex].pin_yellow, LOW);
+    Serial.print("Signal Green");
     break;
   case sign_red:;
-    digitalWrite(_signItems[signalIndex].pin_green,LOW);
-    digitalWrite(_signItems[signalIndex].pin_red,HIGH);
-    digitalWrite(_signItems[signalIndex].pin_yellow,LOW);
+    digitalWrite(_signItems[signalIndex].pin_green, LOW);
+    digitalWrite(_signItems[signalIndex].pin_red, HIGH);
+    digitalWrite(_signItems[signalIndex].pin_yellow, LOW);
+    Serial.print("Signal Red");
     break;
   case sign_yellow:;
-    digitalWrite(_signItems[signalIndex].pin_green,HIGH);
-    digitalWrite(_signItems[signalIndex].pin_red,LOW);
-    digitalWrite(_signItems[signalIndex].pin_yellow,HIGH);
+    digitalWrite(_signItems[signalIndex].pin_green, HIGH);
+    digitalWrite(_signItems[signalIndex].pin_red, LOW);
+    digitalWrite(_signItems[signalIndex].pin_yellow, HIGH);
+    Serial.print("Signal Yellow");
     break;
   default:
     break;
-  } 
+  }
 }
 
 void Signal::setSignalStatus(int index, int status)
 {
-  _signItems[index].signstatus = status;
+  _signItems[index].signstatus = status; 
   switch (status)
   {
   case sign_red:
